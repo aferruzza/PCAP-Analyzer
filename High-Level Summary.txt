@@ -1,0 +1,75 @@
+(* denotes high-level summary of section)
+
+Enter file name and include '.pcap' at the end: assignment2.pcap
+
+	*Number of TCP connections was determined by getting the ACK and SYN flag values and comparing them. If they both equal 1, a connection is found.
+	*ACK and SYN flag values were found in the Control bits section of TCP header using Python's bitewise
+
+Number of TCP Connections =  3 
+
+Connection 1
+----------------
+	*Source Port, Source IP, Dest Port, and Dest IP were all found starting from byte value 26 on in the buffer.
+	*Wireshark helped with finding the exact placement of these values in the buffer.
+
+Source Port:  43498 | Source IP 130.245.145.12 | Destination Port:  80 | Destination IP:  128.208.2.198
+
+	*Throughput is measured by first checking if the packet's source IP is equal to the sender IP defined in the assignment pdf
+	*Then we mark a starting timestamp using that packets timestamp, and loop through all the values that meet this above condition
+	*As the loop goes on, the bytes size appends the respective packets' sizes.
+	*We keep moving the end timestamp along the loop so it reaches the last packet checked.
+	*Finally, divide the total bytes appended by the (end-start) for time to get the throughput
+
+Sender throughput (bytes over time):  5251354.304335755
+
+	*Now we look at the first two transactions after the connection is made and grab the seq_number, ack_number, and window size from the buffer
+	*Window scale was found to be 3 (multiply by 16,384)
+
+Sequence number:  705669103 |Acknowledgement number:  1921750144 |Window:  49152
+Sequence number:  705669103 |Acknowledgement number:  1921750144 |Window:  49152
+
+	*Congestion happens when sequence numbers get backed up in the buffer, so I kept track of sequence that get sent repeatedly
+	*Then when an ack number finally gets thrown back, at this point take the sequence number (Last kept track of) and subtract the ack number
+	*If this is a positive number, you have an amount of packets that caused congestion, hence the congestion window
+	*The congestion window seems to steadily grow here, but as seen in the following connections, it doesn't necessarily follow a pattern
+
+Congestion window:  11584
+Congestion window:  13032
+Congestion window:  14480
+
+	*For retransmissions due to 3-duplicate ack, simply keep track of the ack numbers in 3 different arrays
+	*Always depend to array1 by default, but if the ack number is in array1, append to array2
+	*If the ack number is in array1 and array2, add to array3 (this is a triple duplicate ack). 
+	*Return the length of this third array
+	
+Triple Duplicate Ack retransmissions: 2
+
+
+	*The rest of this .txt file is the remaining output of the code
+
+Connection 2
+----------------
+Source Port:  43500 | Source IP 130.245.145.12 | Destination Port:  80 | Destination IP:  128.208.2.198
+Sender throughput (bytes over time):  1285411.832990512
+First two transactions: 
+Sequence number:  3636173852 |Acknowledgement number:  2335809728 |Window:  49152
+Sequence number:  3636173852 |Acknowledgement number:  2335809728 |Window:  49152
+
+Congestion window:  11584
+Congestion window:  13032
+Congestion window:  11584
+Triple Duplicate Ack retransmissions: 38
+
+
+Connection 3
+----------------
+Source Port:  43502 | Source IP 130.245.145.12 | Destination Port:  80 | Destination IP:  128.208.2.198
+Sender throughput (bytes over time):  1481406.4219614046
+First two transactions: 
+Sequence number:  2558634630 |Acknowledgement number:  3429921723 |Window:  49152
+Sequence number:  2558634630 |Acknowledgement number:  3429921723 |Window:  49152
+
+Congestion window:  11584
+Congestion window:  13032
+Congestion window:  11584
+Triple Duplicate Ack retransmissions: 0
